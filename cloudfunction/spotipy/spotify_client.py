@@ -72,5 +72,4 @@ class SpotifyClient:
         except requests.exceptions.HTTPError as e:
             raise SystemExit(e)
 
-        r.request.url
         return r.json().get("audio_features")
