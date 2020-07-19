@@ -1,6 +1,7 @@
 import requests
 import json
 import base64
+import logging
 
 
 class SpotifyClient:
@@ -18,6 +19,7 @@ class SpotifyClient:
             r = requests.post(token_url, headers=header, data=data)
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
+            logging.error("Couldn't obtain access token.")
             raise SystemExit(e)
 
         self._access_token = r.json().get("access_token")
