@@ -25,7 +25,7 @@ def write_top50_data(spotify_client, playlist_id):
     file_timestamp = str(time.time_ns())
     file_name = "top50_audiofeatures_" + file_date + "_" + file_timestamp + ".json"
 
-    with open(f"./tmp/{file_name}", "w") as f:
+    with open(f"/tmp/{file_name}", "w") as f:
         # Join track data and audio features and write
         for i, track in enumerate(track_data):
             temp_data = track_data[i]
@@ -41,9 +41,9 @@ def write_top50_data(spotify_client, playlist_id):
 def upload_file_blob(gcs_client, bucket_name, file_name):
     bucket = gcs_client.bucket(bucket_name)
     blob = bucket.blob(file_name)
-    blob.upload_from_filename("./tmp/" + file_name)
+    blob.upload_from_filename("/tmp/" + file_name)
     # Remove file after uploading to GCS
-    os.remove("./tmp/" + file_name)
+    os.remove("/tmp/" + file_name)
 
 
 def load_bigquery(bq_client, dataset, table_name, blob_uri):
@@ -76,6 +76,7 @@ def main(*args):
     gcs_client = storage.Client()
     try:
         upload_file_blob(gcs_client, "spotify-data", temp_file)
+        logging.info(f"Wrote file {temp_file} to blob")
     except Exception as e:
         logging.error(e)
 
@@ -84,5 +85,6 @@ def main(*args):
     blob_path = "gs://spotify-data/"
     try:
         load_bigquery(bq_client, "spotify", "top50_tracks_raw", blob_path + temp_file)
+        logging.info(f"{temp_file} loaded into BigQuery.")
     except Exception as e:
         logging.error(e)
